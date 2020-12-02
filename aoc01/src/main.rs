@@ -1,12 +1,8 @@
-use std::io::BufRead as _;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let file = std::fs::File::open("input.txt")?;
-    let numbers: Vec<u32> = std::io::BufReader::new(file)
+    let numbers: Vec<u32> = include_str!("../input.txt")
         .lines()
-        .map(|line| line)
-        .flatten()
         .map(|line| line.parse())
         .flatten()
         .collect();
