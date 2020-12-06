@@ -4,30 +4,50 @@ enum Field {
     Tree,
 }
 
-fn parse_map(map: &str) -> Option<Vec<Vec<Field>>> {
-    map
-        .lines()
-        .map(|line| -> Option<_> {
-            line
-                .chars()
-                .map(|it| match it {
-                    '#' => Some(Field::Tree),
-                    '.' => Some(Field::Open),
-                    _ => None,
-                })
-                .collect()
-        })
-        .collect()
+struct Map {
+    stride: usize,
+    fields: Vec<Field>,
 }
 
-fn find_trees(map: &[Vec<Field>], dx: usize, dy: usize) -> usize {
+impl Map {
+    #[inline]
+    fn get(&self, x: usize, y: usize) -> Option<Field> {
+        self.fields.get(y * self.stride + (x % self.stride)).copied()
+    }
+
+    #[inline]
+    fn height(&self) -> usize {
+        self.fields.len() / self.stride
+    }
+}
+
+fn parse_map(map: &str) -> Option<Map> {
+    let stride = map.lines().next().unwrap_or("").len();
+    let fields: Option<Vec<_>> = map
+        .lines()
+        .flat_map(|line| line.chars())
+        .map(|c| {
+            match c {
+                '#' => Some(Field::Tree),
+                '.' => Some(Field::Open),
+                _ => None,
+            }
+        })
+        .collect();
+    Some(Map {
+        stride,
+        fields: fields?,
+    })
+}
+
+fn find_trees(map: &Map, dx: usize, dy: usize) -> usize {
     let mut x = 0;
     let mut y = 0;
     let mut trees = 0;
-    while y < map.len() - 1 {
+    while y < map.height() - 1 {
         x += dx;
         y += dy;
-        if map[y][x % map[0].len()] == Field::Tree {
+        if map.get(x, y) == Some(Field::Tree) {
             trees += 1;
         }
     }
