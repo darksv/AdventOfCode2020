@@ -13,23 +13,15 @@ fn decode(s: &str) -> u32 {
 
 fn main() {
     let input = include_str!("../input.txt");
-    let seats: Vec<_> = input.lines().map(decode).collect();
-    let answer1 = seats.iter().copied().max();
+    let mut seats: Vec<_> = input.lines().map(decode).collect();
+    seats.sort_unstable();
+
+    let answer1 = seats.iter().copied().last();
     println!("#1 = {}", answer1.unwrap());
 
-    let mut available_seats = [true; 8 * 128];
-    for &id in seats.iter() {
-        available_seats[id as usize] = false;
-    }
-
-    let answer2 = available_seats
-        .iter()
-        .copied()
-        .enumerate()
-        .skip_while(|(id, seat)| *seat)
-        .skip_while(|(id, seat)| !*seat)
-        .map(|it| it.0)
+    let answer2 = seats
+        .windows(2)
+        .filter_map(|pair| if pair[1] == pair[0] + 2 { Some(pair[0] + 1) } else { None })
         .next();
-
     println!("#2 = {}", answer2.unwrap());
 }
