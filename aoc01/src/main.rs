@@ -1,7 +1,8 @@
 use std::error::Error;
+use std::collections::HashSet;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let numbers: Vec<u32> = include_str!("../input.txt")
+    let numbers: HashSet<u32> = include_str!("../input.txt")
         .lines()
         .map(|line| line.parse())
         .flatten()
@@ -9,23 +10,22 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let answer1 = numbers
         .iter()
-        .flat_map(|&x| numbers.iter().map(move |&y| (x, y)))
-        .filter(|(x, y)| x + y == 2020)
-        .map(|(x, y)| x * y)
+        .filter(|&&x| numbers.contains(&(2020 - x)))
+        .map(|x| x * (2020 - x))
         .next();
 
-    if let Some(answer) = answer1 {
-        println!("#1 = {}", answer);
-    }
+    println!("#1 = {}", answer1.unwrap());
 
-    'out:
     for x in numbers.iter().copied() {
         for y in numbers.iter().copied() {
-            for z in numbers.iter().copied() {
-                if x + y + z == 2020 {
-                    println!("#2 = {}", x * y * z);
-                    break 'out;
-                }
+            if x + y > 2020 {
+                continue;
+            }
+
+            let z = 2020 - x - y;
+            if numbers.contains(&z) {
+                println!("#2 = {}", x * y * z);
+                return Ok(());
             }
         }
     }

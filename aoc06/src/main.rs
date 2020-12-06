@@ -27,7 +27,7 @@ fn main() {
         .map(|g| {
             g.answered_with_true
                 .iter()
-                .flat_map(|a| a.iter())
+                .flatten()
                 .collect::<HashSet<_>>()
                 .len()
         })
