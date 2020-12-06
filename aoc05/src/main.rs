@@ -1,35 +1,25 @@
-fn bipart(s: &str, max: u32) -> u32 {
-    let mut lower = 0;
-    let mut upper = max;
-
+fn decode(s: &str) -> u32 {
+    let mut bits = 0u32;
     for c in s.chars() {
+        bits <<= 1;
         match c {
-            'F' | 'L' => {
-                upper = (lower + upper + 1) / 2 - 1;
-            }
-            'B' | 'R' => {
-                lower = (lower + upper + 1) / 2;
-            }
+            'F' | 'L' => bits |= 0,
+            'B' | 'R' => bits |= 1,
             _ => unimplemented!(),
         }
     }
-    assert_eq!(lower, upper);
-    lower
-}
-
-fn find_place(s: &str) -> (u32, u32) {
-    (bipart(&s[..7], 127), bipart(&s[7..], 7))
+    bits
 }
 
 fn main() {
     let input = include_str!("../input.txt");
-    let seats: Vec<_> = input.lines().map(find_place).collect();
-    let answer1 = seats.iter().map(|&(row, column)| row * 8 + column).max();
+    let seats: Vec<_> = input.lines().map(decode).collect();
+    let answer1 = seats.iter().copied().max();
     println!("#1 = {}", answer1.unwrap());
 
     let mut available_seats = [true; 8 * 128];
-    for &(row, column) in seats.iter() {
-        available_seats[row as usize * 8 + column as usize] = false;
+    for &id in seats.iter() {
+        available_seats[id as usize] = false;
     }
 
     let answer2 = available_seats
